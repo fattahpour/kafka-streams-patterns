@@ -64,7 +64,8 @@ public class SuppressionIT extends KafkaIntegrationTest {
       consumer.subscribe(List.of("output-suppression-it"));
       ConsumerRecords<String, Long> records = consumer.poll(Duration.ofSeconds(10));
       List<Long> values =
-          records.records("output-suppression-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("output-suppression-it").spliterator(), false)
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());
       assertThat(values).containsExactly(2L);

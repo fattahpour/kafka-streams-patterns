@@ -58,7 +58,8 @@ public class LateEarlyDataIT extends KafkaIntegrationTest {
       consumer.subscribe(List.of("output-late-early-it"));
       ConsumerRecords<String, Long> records = consumer.poll(Duration.ofSeconds(10));
       List<Long> counts =
-          records.records("output-late-early-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("output-late-early-it").spliterator(), false)
               .filter(r -> r.key().startsWith("k@"))
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());

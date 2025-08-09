@@ -58,7 +58,8 @@ public class FanoutFaninIT extends KafkaIntegrationTest {
       consumer.subscribe(List.of("fanout-output-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
       List<String> values =
-          records.records("fanout-output-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("fanout-output-it").spliterator(), false)
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());
       assertThat(values).containsExactly("3", "4", "9");

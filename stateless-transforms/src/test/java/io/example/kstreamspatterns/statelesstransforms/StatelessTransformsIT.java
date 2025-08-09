@@ -48,7 +48,10 @@ public class StatelessTransformsIT extends KafkaIntegrationTest {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("output-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("output-it").stream().map(ConsumerRecord::value))
+      assertThat(
+              java.util.stream.StreamSupport
+                  .stream(records.records("output-it").spliterator(), false)
+                  .map(ConsumerRecord::value))
           .contains("HELLO", "WORLD");
     }
 
