@@ -60,7 +60,8 @@ public class DeduplicationIT extends KafkaIntegrationTest {
       consumer.subscribe(List.of("output-dedup-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
       List<String> values =
-          records.records("output-dedup-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("output-dedup-it").spliterator(), false)
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());
       assertThat(values).containsExactly("a", "c");
