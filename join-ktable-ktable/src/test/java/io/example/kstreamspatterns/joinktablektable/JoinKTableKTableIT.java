@@ -1,0 +1,63 @@
+package io.example.kstreamspatterns.joinktablektable;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.example.kstreamspatterns.common.KafkaIntegrationTest;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsConfig;
+import org.junit.jupiter.api.Test;
+
+public class JoinKTableKTableIT extends KafkaIntegrationTest {
+  @Test
+  void endToEndJoin() {
+    System.setProperty("tableA.topic", "table-a-it");
+    System.setProperty("tableB.topic", "table-b-it");
+    System.setProperty("output.topic", "joined-it");
+
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "join-ktable-ktable-it");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+
+    KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
+    streams.start();
+
+    Properties prodProps = new Properties();
+    prodProps.put("bootstrap.servers", bootstrapServers());
+    prodProps.put("key.serializer", Serdes.String().serializer().getClass().getName());
+    prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
+    try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
+      producer.send(new ProducerRecord<>("table-a-it", "k1", "A1"));
+      producer.send(new ProducerRecord<>("table-b-it", "k1", "B1"));
+      producer.send(new ProducerRecord<>("table-a-it", "k2", "A2"));
+      producer.flush();
+    }
+
+    Properties consProps = new Properties();
+    consProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    consProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
+    consProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    consProps.put(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        Serdes.String().deserializer().getClass());
+    consProps.put(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        Serdes.String().deserializer().getClass());
+    try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
+      consumer.subscribe(Collections.singletonList("joined-it"));
+      ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
+      assertThat(records.count()).isEqualTo(1);
+      assertThat(records.iterator().next().value()).isEqualTo("A1:B1");
+    }
+
+    streams.close();
+  }
+}
