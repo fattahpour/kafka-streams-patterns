@@ -13,7 +13,8 @@ public final class TopologyBuilder {
     StreamsBuilder builder = new StreamsBuilder();
     builder
         .stream(input, org.apache.kafka.streams.kstream.Consumed.with(Serdes.String(), Serdes.String()))
-        .mapValues(String::toUpperCase)
+        // Guard against null values before applying transformations to avoid NullPointerExceptions.
+        .mapValues(v -> v == null ? null : v.toUpperCase())
         .filter((k, v) -> v != null && !v.startsWith("IGNORE"))
         .flatMapValues(v -> java.util.Arrays.asList(v.split(" ")))
         .to(output);
