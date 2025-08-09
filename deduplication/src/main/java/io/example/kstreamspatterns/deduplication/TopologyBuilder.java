@@ -32,7 +32,9 @@ public final class TopologyBuilder {
     KStream<String, String> source =
         builder.stream(input, Consumed.with(Serdes.String(), Serdes.String()));
     KStream<String, String> deduped =
-        source.transformValues(new DeduplicationSupplier(Duration.ofMinutes(10)), "dedup-store");
+        source
+            .transformValues(new DeduplicationSupplier(Duration.ofMinutes(10)), "dedup-store")
+            .filter((key, value) -> value != null);
     deduped.to(output, Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
