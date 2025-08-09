@@ -3,6 +3,7 @@ package io.example.kstreamspatterns.statelesstransforms;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.Produced;
 
 public final class TopologyBuilder {
   private TopologyBuilder() {}
@@ -17,7 +18,7 @@ public final class TopologyBuilder {
         .mapValues(v -> v == null ? null : v.toUpperCase())
         .filter((k, v) -> v != null && !v.startsWith("IGNORE"))
         .flatMapValues(v -> java.util.Arrays.asList(v.split(" ")))
-        .to(output);
+        .to(output, Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

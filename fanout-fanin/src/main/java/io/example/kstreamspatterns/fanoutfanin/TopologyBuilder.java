@@ -39,7 +39,8 @@ public final class TopologyBuilder {
               }
             });
 
-    even.merge(odd).to(output);
+    even.merge(odd)
+        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

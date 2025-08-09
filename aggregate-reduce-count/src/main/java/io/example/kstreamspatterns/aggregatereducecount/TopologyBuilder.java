@@ -19,9 +19,18 @@ public final class TopologyBuilder {
         builder
             .stream(input, Consumed.with(Serdes.String(), Serdes.Long()))
             .groupByKey();
-    grouped.aggregate(() -> 0L, (k, v, agg) -> agg + v).toStream().to(sum);
-    grouped.reduce(Long::max).toStream().to(max);
-    grouped.count().toStream().to(count);
+    grouped
+        .aggregate(() -> 0L, (k, v, agg) -> agg + v)
+        .toStream()
+        .to(sum, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.Long()));
+    grouped
+        .reduce(Long::max)
+        .toStream()
+        .to(max, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.Long()));
+    grouped
+        .count()
+        .toStream()
+        .to(count, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.Long()));
     return builder.build();
   }
 }
