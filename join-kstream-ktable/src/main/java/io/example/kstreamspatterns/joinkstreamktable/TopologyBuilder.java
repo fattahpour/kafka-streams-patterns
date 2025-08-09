@@ -19,7 +19,9 @@ public final class TopologyBuilder {
         builder.stream(stream, Consumed.with(Serdes.String(), Serdes.String()));
     KTable<String, String> tableSource =
         builder.table(table, Consumed.with(Serdes.String(), Serdes.String()));
-    streamSource.join(tableSource, (s, t) -> s + ":" + t).to(output);
+    streamSource
+        .join(tableSource, (s, t) -> s + ":" + t)
+        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

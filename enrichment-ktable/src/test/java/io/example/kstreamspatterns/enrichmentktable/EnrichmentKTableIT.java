@@ -54,7 +54,10 @@ public class EnrichmentKTableIT extends KafkaIntegrationTest {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("enriched-orders-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("enriched-orders-it").stream().map(ConsumerRecord::value))
+      assertThat(
+              java.util.stream.StreamSupport
+                  .stream(records.records("enriched-orders-it").spliterator(), false)
+                  .map(ConsumerRecord::value))
           .contains("apple:5");
     }
 

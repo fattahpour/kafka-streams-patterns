@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.example.kstreamspatterns.common.KafkaIntegrationTest;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -26,6 +28,8 @@ public class StatelessTransformsIT extends KafkaIntegrationTest {
     Properties props = new Properties();
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "stateless-it");
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
     KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
     streams.start();
@@ -48,8 +52,12 @@ public class StatelessTransformsIT extends KafkaIntegrationTest {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("output-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("output-it").stream().map(ConsumerRecord::value))
-          .contains("HELLO", "WORLD");
+      List<String> values =
+          java.util.stream.StreamSupport
+              .stream(records.records("output-it").spliterator(), false)
+              .map(ConsumerRecord::value)
+              .collect(Collectors.toList());
+      assertThat(values).containsExactly("HELLO", "WORLD");
     }
 
     streams.close();

@@ -53,13 +53,19 @@ public class ExactlyOnceOutboxIT extends KafkaIntegrationTest {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("orders-proc"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("orders-proc").stream().map(ConsumerRecord::value))
+      assertThat(
+              java.util.stream.StreamSupport
+                  .stream(records.records("orders-proc").spliterator(), false)
+                  .map(ConsumerRecord::value))
           .containsExactly("ITEM");
     }
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("orders-out"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("orders-out").stream().map(ConsumerRecord::value))
+      assertThat(
+              java.util.stream.StreamSupport
+                  .stream(records.records("orders-out").spliterator(), false)
+                  .map(ConsumerRecord::value))
           .containsExactly("ITEM");
     }
 
