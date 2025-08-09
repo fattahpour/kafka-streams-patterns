@@ -18,7 +18,7 @@ public final class TopologyBuilder {
         .selectKey((k, v) -> v.split(":")[0])
         .mapValues(v -> v.split(":")[1])
         .repartition(Repartitioned.with(Serdes.String(), Serdes.String()))
-        .to(output);
+        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

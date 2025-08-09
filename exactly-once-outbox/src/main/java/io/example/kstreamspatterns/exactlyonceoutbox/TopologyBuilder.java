@@ -16,8 +16,8 @@ public final class TopologyBuilder {
         builder
             .stream(input, org.apache.kafka.streams.kstream.Consumed.with(Serdes.String(), Serdes.String()))
             .mapValues(String::toUpperCase);
-    stream.to(processed);
-    stream.to(outbox);
+    stream.to(processed, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
+    stream.to(outbox, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

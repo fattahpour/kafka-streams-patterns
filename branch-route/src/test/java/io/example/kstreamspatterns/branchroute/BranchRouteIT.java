@@ -60,11 +60,13 @@ public class BranchRouteIT extends KafkaIntegrationTest {
       consumer.subscribe(Arrays.asList("even-branch-it", "odd-branch-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
       List<String> evenValues =
-          records.records("even-branch-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("even-branch-it").spliterator(), false)
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());
       List<String> oddValues =
-          records.records("odd-branch-it").stream()
+          java.util.stream.StreamSupport
+              .stream(records.records("odd-branch-it").spliterator(), false)
               .map(ConsumerRecord::value)
               .collect(Collectors.toList());
       assertThat(evenValues).containsExactly("2");

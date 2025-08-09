@@ -12,7 +12,14 @@ import org.junit.jupiter.api.Test;
 public class TopologyBuilderTest {
   @Test
   void mapFilterFlatMap() {
-    try (TopologyTestDriver testDriver = new TopologyTestDriver(TopologyBuilder.build())) {
+    java.util.Properties props = new java.util.Properties();
+    props.put(
+        org.apache.kafka.streams.StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+        Serdes.String().getClass().getName());
+    props.put(
+        org.apache.kafka.streams.StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+        Serdes.String().getClass().getName());
+    try (TopologyTestDriver testDriver = new TopologyTestDriver(TopologyBuilder.build(), props)) {
       TestInputTopic<String, String> in =
           testDriver.createInputTopic("input-stateless", Serdes.String().serializer(), Serdes.String().serializer());
       TestOutputTopic<String, String> out =

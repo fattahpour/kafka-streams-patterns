@@ -24,7 +24,7 @@ public final class TopologyBuilder {
             productTable,
             (key, value) -> key,
             (order, name) -> name == null ? "unknown:" + order : name + ":" + order)
-        .to(output);
+        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }

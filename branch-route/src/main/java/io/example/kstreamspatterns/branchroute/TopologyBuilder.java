@@ -26,8 +26,8 @@ public final class TopologyBuilder {
               }
             },
             (k, v) -> true);
-    branches[0].to(even);
-    branches[1].to(odd);
+    branches[0].to(even, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
+    branches[1].to(odd, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }
 }
