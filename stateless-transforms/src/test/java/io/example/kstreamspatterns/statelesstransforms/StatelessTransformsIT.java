@@ -26,6 +26,8 @@ public class StatelessTransformsIT extends KafkaIntegrationTest {
     Properties props = new Properties();
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "stateless-it");
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
     KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
     streams.start();
@@ -48,7 +50,10 @@ public class StatelessTransformsIT extends KafkaIntegrationTest {
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
       consumer.subscribe(Collections.singleton("output-it"));
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.records("output-it").stream().map(ConsumerRecord::value))
+      assertThat(
+              java.util.stream.StreamSupport
+                  .stream(records.records("output-it").spliterator(), false)
+                  .map(ConsumerRecord::value))
           .contains("HELLO", "WORLD");
     }
 
