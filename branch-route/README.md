@@ -11,8 +11,13 @@ input-branch ---> branch ---+--> even-branch
 ## How to run
 
 ```bash
-docker compose up -d
-./branch-route/run.sh
+mvn -pl branch-route -am clean package
+java -jar branch-route/target/branch-route-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=branch-route \
+  -Dinput.topic=input-branch \
+  -Deven.topic=even-branch \
+  -Dodd.topic=odd-branch
 ```
 
 Produces numbers to `input-branch` and observe routed values on `even-branch` and `odd-branch`.

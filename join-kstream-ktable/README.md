@@ -11,8 +11,13 @@ table-join --/
 ## How to run
 
 ```bash
-docker compose up -d
-./join-kstream-ktable/run.sh
+mvn -pl join-kstream-ktable -am clean package
+java -jar join-kstream-ktable/target/join-kstream-ktable-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=join-kstream-ktable \
+  -Dstream.topic=stream \
+  -Dtable.topic=table \
+  -Doutput.topic=joined
 ```
 
-Produce records on `table-join` and `stream-join` and observe joined values on `joined`.
+Produce records on `stream` and `table` and observe joined values on `joined`.

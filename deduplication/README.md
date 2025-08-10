@@ -11,5 +11,10 @@ input-dedup --> [deduplicate by key] --> output-dedup
 ## Running
 
 ```bash
-./run.sh
+mvn -pl deduplication -am clean package
+java -jar deduplication/target/deduplication-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=deduplication \
+  -Dinput.topic=input-dedup \
+  -Doutput.topic=output-dedup
 ```

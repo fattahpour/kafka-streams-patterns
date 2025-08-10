@@ -8,8 +8,15 @@ Expose a materialized key-value store via a simple REST endpoint for interactive
 input-materialized --> [groupBy/count -> materialized store] --> output-materialized
 ```
 
-## Running
+## How to run
 
 ```bash
-./run.sh
+mvn -pl materialized-views -am clean package
+java -jar materialized-views/target/materialized-views-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=materialized-views \
+  -Dinput.topic=input-materialized \
+  -Doutput.topic=output-materialized \
+  -Dcounts.store=counts-store \
+  -Dvalues.store=values-store
 ```

@@ -8,8 +8,13 @@ Emit final windowed results only using `Suppressed.untilWindowCloses`.
 input-suppression --> [group & count in tumbling window] --> suppress until window closes --> output-suppression
 ```
 
-## Running
+## How to run
 
 ```bash
-./run.sh
+mvn -pl suppression -am clean package
+java -jar suppression/target/suppression-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=suppression \
+  -Dinput.topic=input-suppression \
+  -Doutput.topic=output-suppression
 ```
