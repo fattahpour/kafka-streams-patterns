@@ -37,6 +37,13 @@ public class EnrichmentKTableIT extends KafkaIntegrationTest {
     prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
     try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
       producer.send(new ProducerRecord<>("products-it", "p1", "apple"));
+      producer.flush();
+      // Give the product stream time to populate the KTable before sending the order.
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
       producer.send(new ProducerRecord<>("orders-it", "p1", "5"));
       producer.flush();
     }
