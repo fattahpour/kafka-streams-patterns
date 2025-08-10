@@ -27,9 +27,11 @@ public class EnrichmentKTableIT extends KafkaIntegrationTest {
     Properties props = new Properties();
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "enrich-it");
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
     KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
     streams.start();
+    waitForRunning(streams);
 
     Properties prodProps = new Properties();
     prodProps.put("bootstrap.servers", bootstrapServers());
@@ -37,6 +39,13 @@ public class EnrichmentKTableIT extends KafkaIntegrationTest {
     prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
     try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
       producer.send(new ProducerRecord<>("products-it", "p1", "apple"));
+      producer.flush();
+      // Give the product stream time to populate the KTable before sending the order.
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
       producer.send(new ProducerRecord<>("orders-it", "p1", "5"));
       producer.flush();
     }
@@ -62,5 +71,18 @@ public class EnrichmentKTableIT extends KafkaIntegrationTest {
     }
 
     streams.close();
+  }
+
+  private static void waitForRunning(KafkaStreams streams) {
+    long deadline = System.currentTimeMillis() + 10_000;
+    while (streams.state() != KafkaStreams.State.RUNNING
+        && System.currentTimeMillis() < deadline) {
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
   }
 }
