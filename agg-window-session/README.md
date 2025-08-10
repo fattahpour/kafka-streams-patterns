@@ -25,3 +25,11 @@ java -jar agg-window-session/target/agg-window-session-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce records on `session-input` and observe counts on `session-output`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator agg-window-session
+```

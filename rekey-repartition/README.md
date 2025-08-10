@@ -23,3 +23,11 @@ java -jar rekey-repartition/target/rekey-repartition-1.0.0-SNAPSHOT.jar \
   -Dinput.topic=input-rekey \
   -Doutput.topic=output-rekey
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator rekey-repartition
+```

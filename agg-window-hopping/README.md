@@ -26,3 +26,11 @@ java -jar agg-window-hopping/target/agg-window-hopping-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce records on `input` and observe counts on `hopping-count`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator agg-window-hopping
+```

@@ -30,3 +30,11 @@ java -jar fanout-fanin/target/fanout-fanin-1.0.0-SNAPSHOT.jar \
   -Dinput.topic=fanout-input \
   -Doutput.topic=fanout-output
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator fanout-fanin
+```

@@ -28,3 +28,11 @@ java -jar aggregate-reduce-count/target/aggregate-reduce-count-1.0.0-SNAPSHOT.ja
   -Dmax.topic=max-arc \
   -Dcount.topic=count-arc
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator aggregate-reduce-count
+```

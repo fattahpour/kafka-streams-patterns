@@ -28,3 +28,11 @@ java -jar join-kstream-kstream/target/join-kstream-kstream-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce matching records on `left-join` and `right-join` and observe joined values on `joined`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator join-kstream-kstream
+```

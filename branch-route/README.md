@@ -29,3 +29,11 @@ java -jar branch-route/target/branch-route-1.0.0-SNAPSHOT.jar \
 ```
 
 Produces numbers to `input-branch` and observe routed values on `even-branch` and `odd-branch`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator branch-route
+```

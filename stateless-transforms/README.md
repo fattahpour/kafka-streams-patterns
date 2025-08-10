@@ -24,3 +24,11 @@ java -jar stateless-transforms/target/stateless-transforms-1.0.0-SNAPSHOT.jar \
   -Dinput.topic=input-stateless \
   -Doutput.topic=output-stateless
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator stateless-transforms
+```

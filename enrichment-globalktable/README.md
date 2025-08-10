@@ -26,3 +26,11 @@ java -jar enrichment-globalktable/target/enrichment-globalktable-1.0.0-SNAPSHOT.
   -Dproducts.topic=products \
   -Doutput.topic=enriched-orders
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator enrichment-globalktable
+```

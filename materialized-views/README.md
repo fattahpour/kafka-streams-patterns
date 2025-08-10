@@ -27,3 +27,11 @@ java -jar materialized-views/target/materialized-views-1.0.0-SNAPSHOT.jar \
   -Dcounts.store=counts-store \
   -Dvalues.store=values-store
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator materialized-views
+```
