@@ -25,3 +25,11 @@ java -jar late-early-data/target/late-early-data-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce records on `late-early-input` and observe early and final counts on `late-early-output`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator late-early-data
+```

@@ -28,3 +28,11 @@ java -jar join-kstream-ktable/target/join-kstream-ktable-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce records on `stream` and `table` and observe joined values on `joined`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator join-kstream-ktable
+```

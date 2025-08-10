@@ -25,3 +25,11 @@ java -jar deduplication/target/deduplication-1.0.0-SNAPSHOT.jar \
   -Dinput.topic=input-dedup \
   -Doutput.topic=output-dedup
 ```
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator deduplication
+```

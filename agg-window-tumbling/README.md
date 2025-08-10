@@ -25,3 +25,11 @@ java -jar agg-window-tumbling/target/agg-window-tumbling-1.0.0-SNAPSHOT.jar \
 ```
 
 Produce records on `tumbling-input` and observe counts on `tumbling-output`.
+
+## Generate example data
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator agg-window-tumbling
+```
