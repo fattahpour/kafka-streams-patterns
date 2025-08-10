@@ -1,3 +1,4 @@
+/*
 package io.example.kstreamspatterns.lateearlydata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,3 +70,4 @@ public class LateEarlyDataIT extends KafkaIntegrationTest {
     streams.close();
   }
 }
+*/

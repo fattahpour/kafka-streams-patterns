@@ -7,6 +7,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Suppressed;
@@ -14,26 +15,34 @@ import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
 public final class TopologyBuilder {
-  private TopologyBuilder() {}
+    private TopologyBuilder() {}
 
-  public static Topology build() {
-    String input = System.getProperty("input.topic", "late-early-input");
-    String output = System.getProperty("output.topic", "late-early-output");
+    public static Topology build() {
+        // Test-friendly defaults; system properties still override these.
+        final String input  = System.getProperty("input.topic",  "late-early-input");
+        final String early  = System.getProperty("early.topic",  "late-early-early");
+        final String output = System.getProperty("output.topic", "late-early-output");
 
-    StreamsBuilder builder = new StreamsBuilder();
-    builder
-        .stream(input, Consumed.with(Serdes.String(), Serdes.Long()))
-        .groupByKey(Grouped.with(Serdes.String(), Serdes.Long()))
-        .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(5), Duration.ofSeconds(5)))
-        .count(Materialized.with(Serdes.String(), Serdes.Long()))
-        .suppress(
-            Suppressed.untilTimeLimit(
-                    Duration.ofSeconds(1), Suppressed.BufferConfig.unbounded())
-                .emitEarly()
-                .emitFinal())
-        .toStream()
-        .map((Windowed<String> k, Long v) -> KeyValue.pair(k.key() + "@" + k.window().start(), v))
-        .to(output, Produced.with(Serdes.String(), Serdes.Long()));
-    return builder.build();
-  }
+        StreamsBuilder b = new StreamsBuilder();
+
+        // 1-minute tumbling windows, NO grace (finals emit once stream-time passes window end)
+        KTable<Windowed<String>, Long> counts =
+                b.stream(input, Consumed.with(Serdes.String(), Serdes.String()))
+                        .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
+                        .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))
+                        .count(Materialized.with(Serdes.String(), Serdes.Long()));
+
+        // EARLY results: every update before the window closes
+        counts.toStream()
+                .map((Windowed<String> k, Long v) -> KeyValue.pair(k.key(), v))
+                .to(early, Produced.with(Serdes.String(), Serdes.Long()));
+
+        // FINAL results only when the window closes
+        counts.suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
+                .toStream()
+                .map((Windowed<String> k, Long v) -> KeyValue.pair(k.key(), v))
+                .to(output, Produced.with(Serdes.String(), Serdes.Long()));
+
+        return b.build();
+    }
 }

@@ -87,6 +87,12 @@
         <version>3.24.2</version>
         <scope>test</scope>
       </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams-test-utils</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
     </dependencies>
   </dependencyManagement>
 

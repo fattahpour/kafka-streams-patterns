@@ -14,21 +14,24 @@ import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
 public final class TopologyBuilder {
-  private TopologyBuilder() {}
+    private TopologyBuilder() {}
 
-  public static Topology build() {
-    String input = System.getProperty("input.topic", "input-suppression");
-    String output = System.getProperty("output.topic", "output-suppression");
-    StreamsBuilder builder = new StreamsBuilder();
-    builder
-        .stream(input, Consumed.with(Serdes.String(), Serdes.String()))
-        .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
-        .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))
-        .count(Materialized.with(Serdes.String(), Serdes.Long()))
-        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
-        .toStream()
-        .map((Windowed<String> k, Long v) -> KeyValue.pair(k.key(), v))
-        .to(output, Produced.with(Serdes.String(), Serdes.Long()));
-    return builder.build();
-  }
+    public static Topology build() {
+        String input  = System.getProperty("input.topic",  "input-suppression");
+        String output = System.getProperty("output.topic", "output-suppression");
+
+        StreamsBuilder b = new StreamsBuilder();
+
+        b.stream(input, Consumed.with(Serdes.String(), Serdes.String()))
+                .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
+                .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(5), Duration.ZERO))
+                .count(Materialized.with(Serdes.String(), Serdes.Long()))
+                .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
+                .toStream()
+                // flatten windowed key to just the original key (matches test expectation "k1")
+                .map((Windowed<String> k, Long v) -> KeyValue.pair(k.key(), v))
+                .to(output, Produced.with(Serdes.String(), Serdes.Long()));
+
+        return b.build();
+    }
 }

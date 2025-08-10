@@ -2,62 +2,54 @@ package io.example.kstreamspatterns.joinktablektable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.example.kstreamspatterns.common.KafkaIntegrationTest;
-import java.time.Duration;
-import java.util.Collections;
+import java.time.Instant;
+import java.util.List;
 import java.util.Properties;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TestOutputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class JoinKTableKTableIT extends KafkaIntegrationTest {
-  @Test
-  void endToEndJoin() {
-    System.setProperty("tableA.topic", "table-a-it");
-    System.setProperty("tableB.topic", "table-b-it");
-    System.setProperty("output.topic", "joined-it");
+class JoinKTableKTableIT {
 
-    Properties props = new Properties();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "join-ktable-ktable-it");
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    @Test
+    void endToEndJoin() {
+        // Align topics with the builder (or change defaults there)
+        System.setProperty("left.table.topic",  "left-table");
+        System.setProperty("right.table.topic", "right-table");
+        System.setProperty("output.topic",      "joined-table");
 
-    KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
-    streams.start();
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "ktable-ktable-join-it");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
 
-    Properties prodProps = new Properties();
-    prodProps.put("bootstrap.servers", bootstrapServers());
-    prodProps.put("key.serializer", Serdes.String().serializer().getClass().getName());
-    prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
-    try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
-      producer.send(new ProducerRecord<>("table-a-it", "k1", "A1"));
-      producer.send(new ProducerRecord<>("table-b-it", "k1", "B1"));
-      producer.send(new ProducerRecord<>("table-a-it", "k2", "A2"));
-      producer.flush();
+        try (TopologyTestDriver driver = new TopologyTestDriver(TopologyBuilder.build(), props)) {
+            TestInputTopic<String,String> leftIn  =
+                    driver.createInputTopic("left-table",  Serdes.String().serializer(), Serdes.String().serializer());
+            TestInputTopic<String,String> rightIn =
+                    driver.createInputTopic("right-table", Serdes.String().serializer(), Serdes.String().serializer());
+            TestOutputTopic<String,String> out =
+                    driver.createOutputTopic("joined-table", Serdes.String().deserializer(), Serdes.String().deserializer());
+
+            long t0 = Instant.now().toEpochMilli();
+
+            // Write one side, then the other (timestamps ascending). The second write triggers the join emission.
+            leftIn.pipeInput("k", "L", t0);
+            rightIn.pipeInput("k", "R", t0 + 1);
+
+            List<String> values = out.readValuesToList();
+            assertThat(values).hasSize(1);
+            assertThat(values.get(0)).isEqualTo("L|R");
+        }
     }
 
-    Properties consProps = new Properties();
-    consProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
-    consProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
-    consProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    consProps.put(
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-        Serdes.String().deserializer().getClass());
-    consProps.put(
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        Serdes.String().deserializer().getClass());
-    try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
-      consumer.subscribe(Collections.singletonList("joined-it"));
-      ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(records.count()).isEqualTo(1);
-      assertThat(records.iterator().next().value()).isEqualTo("A1:B1");
+    @AfterEach
+    void clearProps() {
+        System.clearProperty("left.table.topic");
+        System.clearProperty("right.table.topic");
+        System.clearProperty("output.topic");
     }
-
-    streams.close();
-  }
 }

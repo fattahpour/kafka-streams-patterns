@@ -17,7 +17,13 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
-    <dependency>
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-streams-test-utils</artifactId>
+          <version>${kafka.streams.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams</artifactId>
     </dependency>

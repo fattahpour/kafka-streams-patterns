@@ -5,20 +5,25 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Produced;
 
 public final class TopologyBuilder {
-  private TopologyBuilder() {}
+    private TopologyBuilder() {}
 
-  public static Topology build() {
-    String tableA = System.getProperty("tableA.topic", "table-a");
-    String tableB = System.getProperty("tableB.topic", "table-b");
-    String output = System.getProperty("output.topic", "joined");
-    StreamsBuilder builder = new StreamsBuilder();
-    KTable<String, String> a = builder.table(tableA, Consumed.with(Serdes.String(), Serdes.String()));
-    KTable<String, String> b = builder.table(tableB, Consumed.with(Serdes.String(), Serdes.String()));
-    a.join(b, (va, vb) -> va + ":" + vb)
-        .toStream()
-        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
-    return builder.build();
-  }
+    public static Topology build() {
+        String left   = System.getProperty("left.table.topic",  "left-table");
+        String right  = System.getProperty("right.table.topic", "right-table");
+        String output = System.getProperty("output.topic",      "joined-table");
+
+        StreamsBuilder b = new StreamsBuilder();
+
+        KTable<String, String> leftT  = b.table(left,  Consumed.with(Serdes.String(), Serdes.String()));
+        KTable<String, String> rightT = b.table(right, Consumed.with(Serdes.String(), Serdes.String()));
+
+        leftT.join(rightT, (l, r) -> l + "|" + r)
+                .toStream() // important: emit the joined updates
+                .to(output, Produced.with(Serdes.String(), Serdes.String()));
+
+        return b.build();
+    }
 }

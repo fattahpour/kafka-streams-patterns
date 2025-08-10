@@ -2,65 +2,52 @@ package io.example.kstreamspatterns.enrichmentktable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.example.kstreamspatterns.common.KafkaIntegrationTest;
-import java.time.Duration;
-import java.util.Collections;
+import java.time.Instant;
+import java.util.List;
 import java.util.Properties;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TestOutputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class EnrichmentKTableIT extends KafkaIntegrationTest {
-  @Test
-  void endToEndEnrichment() {
-    System.setProperty("orders.topic", "orders-it");
-    System.setProperty("products.topic", "products-it");
-    System.setProperty("output.topic", "enriched-orders-it");
+class EnrichmentKTableIT {
 
-    Properties props = new Properties();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "enrich-it");
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    @Test
+    void endToEndEnrichment() {
+        System.setProperty("input.topic",  "enrich-input");
+        System.setProperty("table.topic",  "enrich-table");
+        System.setProperty("output.topic", "enrich-output");
 
-    KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
-    streams.start();
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "enrich-it");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
 
-    Properties prodProps = new Properties();
-    prodProps.put("bootstrap.servers", bootstrapServers());
-    prodProps.put("key.serializer", Serdes.String().serializer().getClass().getName());
-    prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
-    try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
-      producer.send(new ProducerRecord<>("products-it", "p1", "apple"));
-      producer.send(new ProducerRecord<>("orders-it", "p1", "5"));
-      producer.flush();
+        try (TopologyTestDriver driver = new TopologyTestDriver(TopologyBuilder.build(), props)) {
+            TestInputTopic<String,String> tableIn =
+                    driver.createInputTopic("enrich-table", Serdes.String().serializer(), Serdes.String().serializer());
+            TestInputTopic<String,String> streamIn =
+                    driver.createInputTopic("enrich-input", Serdes.String().serializer(), Serdes.String().serializer());
+            TestOutputTopic<String,String> out =
+                    driver.createOutputTopic("enrich-output", Serdes.String().deserializer(), Serdes.String().deserializer());
+
+            long t0 = Instant.now().toEpochMilli();
+            // 1) table first (<= stream timestamp)
+            tableIn.pipeInput("apple", "5", t0 + 1);
+            // 2) then stream
+            streamIn.pipeInput("apple", "apple", t0 + 2);
+
+            List<String> values = out.readValuesToList();
+            assertThat(values).contains("apple:5");
+        }
     }
 
-    Properties consProps = new Properties();
-    consProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
-    consProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
-    consProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    consProps.put(
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-        Serdes.String().deserializer().getClass());
-    consProps.put(
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        Serdes.String().deserializer().getClass());
-    try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consProps)) {
-      consumer.subscribe(Collections.singleton("enriched-orders-it"));
-      ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-      assertThat(
-              java.util.stream.StreamSupport
-                  .stream(records.records("enriched-orders-it").spliterator(), false)
-                  .map(ConsumerRecord::value))
-          .contains("apple:5");
+    @AfterEach
+    void clearProps() {
+        System.clearProperty("input.topic");
+        System.clearProperty("table.topic");
+        System.clearProperty("output.topic");
     }
-
-    streams.close();
-  }
 }

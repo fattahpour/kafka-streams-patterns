@@ -2,55 +2,59 @@ package io.example.kstreamspatterns.materializedviews;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sun.net.httpserver.HttpServer;
-import io.example.kstreamspatterns.common.KafkaIntegrationTest;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.Properties;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class MaterializedViewsIT extends KafkaIntegrationTest {
-  @Test
-  void queryMaterializedStore() throws Exception {
-    System.setProperty("input.topic", "input-materialized-it");
-    System.setProperty("output.topic", "output-materialized-it");
-    System.setProperty("http.port", "8081");
+class MaterializedViewsIT {
 
-    Properties props = new Properties();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "materialized-views-it");
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers());
+    @Test
+    void queryMaterializedStore() {
+        // Align with builder defaults (can still be overridden by -D props)
+        System.setProperty("input.topic", "input-materialized");
+        System.setProperty("output.topic", "output-materialized");
+        System.setProperty("values.store", "values-store");
+        System.setProperty("counts.store", "counts-store");
 
-    KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
-    streams.start();
-    HttpServer server = RestService.start(streams);
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "materialized-views-it");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
 
-    Properties prodProps = new Properties();
-    prodProps.put("bootstrap.servers", bootstrapServers());
-    prodProps.put(
-        "key.serializer", Serdes.String().serializer().getClass().getName());
-    prodProps.put(
-        "value.serializer", Serdes.String().serializer().getClass().getName());
-    try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
-      producer.send(new ProducerRecord<>("input-materialized-it", "k1", "1"));
-      producer.flush();
+        try (TopologyTestDriver driver = new TopologyTestDriver(TopologyBuilder.build(), props)) {
+            TestInputTopic<String, String> in =
+                    driver.createInputTopic("input-materialized", Serdes.String().serializer(), Serdes.String().serializer());
+
+            // Write some data
+            in.pipeInput("k1", "v1");
+            in.pipeInput("k1", "v2"); // latest wins in values store
+            in.pipeInput("k2", "z");
+
+            // Query materialized "latest value" view
+            @SuppressWarnings("unchecked")
+            KeyValueStore<String, String> values =
+                    driver.getKeyValueStore("values-store");
+            assertThat(values.get("k1")).isEqualTo("v2");
+            assertThat(values.get("k2")).isEqualTo("z");
+
+            // Query materialized counts view
+            @SuppressWarnings("unchecked")
+            KeyValueStore<String, Long> counts =
+                    driver.getKeyValueStore("counts-store");
+            assertThat(counts.get("k1")).isEqualTo(2L);
+            assertThat(counts.get("k2")).isEqualTo(1L);
+        }
     }
 
-    HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-    HttpRequest request =
-        HttpRequest.newBuilder(URI.create("http://localhost:8081/count/k1")).build();
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-    assertThat(response.body()).isEqualTo("1");
-
-    server.stop(0);
-    streams.close();
-  }
+    @AfterEach
+    void clearProps() {
+        System.clearProperty("input.topic");
+        System.clearProperty("output.topic");
+        System.clearProperty("values.store");
+        System.clearProperty("counts.store");
+    }
 }

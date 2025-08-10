@@ -6,22 +6,27 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Produced;
 
 public final class TopologyBuilder {
-  private TopologyBuilder() {}
+    private TopologyBuilder() {}
 
-  public static Topology build() {
-    String stream = System.getProperty("stream.topic", "stream-join");
-    String table = System.getProperty("table.topic", "table-join");
-    String output = System.getProperty("output.topic", "joined");
-    StreamsBuilder builder = new StreamsBuilder();
-    KStream<String, String> streamSource =
-        builder.stream(stream, Consumed.with(Serdes.String(), Serdes.String()));
-    KTable<String, String> tableSource =
-        builder.table(table, Consumed.with(Serdes.String(), Serdes.String()));
-    streamSource
-        .join(tableSource, (s, t) -> s + ":" + t)
-        .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
-    return builder.build();
-  }
+    public static Topology build() {
+        String streamTopic = System.getProperty("stream.topic", "stream");
+        String tableTopic  = System.getProperty("table.topic",  "table");
+        String outTopic    = System.getProperty("output.topic", "joined");
+
+        StreamsBuilder b = new StreamsBuilder();
+
+        KTable<String, String> table =
+                b.table(tableTopic, Consumed.with(Serdes.String(), Serdes.String()));
+
+        KStream<String, String> stream =
+                b.stream(streamTopic, Consumed.with(Serdes.String(), Serdes.String()));
+
+        stream.join(table, (l, r) -> l + "|" + r)
+                .to(outTopic, Produced.with(Serdes.String(), Serdes.String()));
+
+        return b.build();
+    }
 }
