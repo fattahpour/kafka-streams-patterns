@@ -2,6 +2,13 @@
 
 Count records per key in sessions with a one-minute inactivity gap.
 
+## Problem
+Marketing at an e-commerce portal needs to know how long shoppers stay engaged.
+
+## Solution
+Session windows group clicks until a minute of inactivity ends the visit, yielding
+per-session counts that power personalized offers.
+
 ```
 input --> groupByKey --> sessionWindow(1m).count --> output
 ```

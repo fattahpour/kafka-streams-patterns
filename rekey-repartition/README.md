@@ -2,6 +2,12 @@
 
 Demonstrates selecting a new record key and forcing a repartition.
 
+## Problem
+Clickstream events are keyed by session, yet analysts need totals per user.
+
+## Solution
+Repartitioning by user ID groups all of a person's activity together before aggregation.
+
 Topology:
 ```
 input-rekey -> SELECTKEY(extract user) -> REPARTITION -> output-rekey

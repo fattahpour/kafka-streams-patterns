@@ -2,6 +2,14 @@
 
 Enrich a stream with table lookups using a `GlobalKTable` left join.
 
+## Problem
+A shipping network needs package-scan events enriched with depot information that rarely
+changes.
+
+## Solution
+The depot table is replicated as a GlobalKTable so each instance can join scans with depot
+data locally.
+
 Topology:
 ```
 orders -> LEFTJOIN(products GlobalKTable) -> enriched-orders

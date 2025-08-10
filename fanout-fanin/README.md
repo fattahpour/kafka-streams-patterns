@@ -2,6 +2,14 @@
 
 Demonstrates splitting a stream into branches and merging the results.
 
+## Problem
+An image-processing service must run multiple analyses on each photo and combine the
+results.
+
+## Solution
+It branches uploads into separate streams for face detection and object labeling, then
+merges the outputs into a single metadata record.
+
 Topology:
 ```
 fanout-input -> branch(even / odd)

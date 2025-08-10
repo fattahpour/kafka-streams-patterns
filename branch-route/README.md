@@ -2,6 +2,14 @@
 
 Branch an input stream into multiple topics using predicates.
 
+## Problem
+An IoT hub receives status updates from thousands of devices and must separate critical
+alerts from routine metrics.
+
+## Solution
+Branching predicates route urgent events to an incident topic for immediate action while
+normal metrics flow to a stream for batch reporting.
+
 ```
 input-branch ---> branch ---+--> even-branch
                             \

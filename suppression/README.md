@@ -2,6 +2,14 @@
 
 Emit final windowed results only using `Suppressed.untilWindowCloses`.
 
+## Problem
+An auction service tracks bids throughout the day but only wants to publish the final
+winning price.
+
+## Solution
+Suppression buffers intermediate counts and emits a single result when the bidding window
+closes.
+
 ## Topology
 
 ```

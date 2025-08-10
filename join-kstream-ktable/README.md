@@ -2,6 +2,13 @@
 
 Join a stream with a table using an inner join.
 
+## Problem
+A fulfillment service wants shipment status events to include human-readable product
+details.
+
+## Solution
+Each status update joins to a product KTable so tracking messages carry item names.
+
 ```
 stream-join ---\
              +--> join --> joined

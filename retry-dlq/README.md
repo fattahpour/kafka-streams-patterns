@@ -2,6 +2,13 @@
 
 Retry pattern using backoff topics and a dead-letter queue with attempt headers.
 
+## Problem
+A payment gateway occasionally times out when calling a bank API.
+
+## Solution
+The stream retries the charge with exponential backoff and, after all attempts fail, sends
+the event to a dead-letter topic for manual review.
+
 ```
 input/retry-1/retry-2 -> [RetryProcessor] -> success
                                |\

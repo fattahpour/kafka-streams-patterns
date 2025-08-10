@@ -2,6 +2,13 @@
 
 Demonstrates using Kafka Streams with EOSv2 to atomically write to a processed topic and an outbox topic.
 
+## Problem
+An online store needs to publish order updates and send confirmation emails exactly once.
+
+## Solution
+The outbox pattern writes the processed order and notification event atomically,
+guaranteeing each order is acted on once.
+
 Topology:
 ```
 orders -> MAP(toUpperCase) -> [processed-orders, orders-outbox]

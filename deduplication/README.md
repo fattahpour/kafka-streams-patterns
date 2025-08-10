@@ -2,6 +2,13 @@
 
 Deduplicate records by key within a ten-minute window using a state store to remember previously seen keys.
 
+## Problem
+In a payment service, retries can resend the same transaction and risk double-charging
+customers.
+
+## Solution
+A ten-minute cache of seen IDs drops duplicates even if upstream components replay events.
+
 ## Topology
 
 ```

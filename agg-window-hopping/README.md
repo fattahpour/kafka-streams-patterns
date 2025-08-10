@@ -2,6 +2,14 @@
 
 Count records per key in one-minute windows advancing every 30 seconds.
 
+## Problem
+An ops team for a busy news site must spot sudden traffic surges so they can scale
+servers before readers experience slowdowns.
+
+## Solution
+Hopping windows count visits every minute with a 30-second slide, surfacing spikes
+early enough to trigger proactive scaling.
+
 ```
 input --> groupByKey --> window(1m,30s).count --> output
 ```

@@ -2,6 +2,13 @@
 
 Count records per key in one-minute tumbling windows.
 
+## Problem
+A telecom provider must monitor network pings per tower to detect outages.
+
+## Solution
+One-minute tumbling windows create discrete buckets so analysts can spot sustained drops
+in connectivity.
+
 ```
 input --> groupByKey --> window(1m).count --> output
 ```

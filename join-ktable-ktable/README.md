@@ -2,6 +2,14 @@
 
 Join two tables and emit the joined values.
 
+## Problem
+A loyalty program keeps separate tables for members and reward tiers but needs a combined
+view of benefits.
+
+## Solution
+Joining the tables yields each customer with their current benefits for downstream
+services.
+
 ```
 table-a ---\
            +--> join --> joined

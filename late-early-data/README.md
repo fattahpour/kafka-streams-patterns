@@ -2,6 +2,14 @@
 
 Emit early and final windowed counts while dropping records arriving after the grace period.
 
+## Problem
+Sensor networks emit readings at irregular times, requiring quick insight without losing
+late updates.
+
+## Solution
+Early results are emitted immediately, and late data updates counts until the grace period
+expires to balance speed and accuracy.
+
 ```
 input --> groupByKey --> window(5s, grace 5s).count.suppress --> output
 ```
