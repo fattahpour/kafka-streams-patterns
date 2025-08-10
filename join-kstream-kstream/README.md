@@ -2,6 +2,13 @@
 
 Join two streams within a five-minute window.
 
+## Problem
+An ad platform needs to correlate impression events with clicks that arrive within five
+minutes.
+
+## Solution
+Joining the two streams attributes engagement and measures campaign effectiveness.
+
 ```
 left-join ----\
               +--> join --> joined

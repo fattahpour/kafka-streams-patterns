@@ -2,6 +2,14 @@
 
 Enrich a stream with table lookups using a `KTable` left join.
 
+## Problem
+A fraud detection pipeline must evaluate each card swipe against the latest account
+profile.
+
+## Solution
+Swipes join to a KTable to fetch the current risk score and decide whether to approve the
+transaction.
+
 Topology:
 ```
 orders -> LEFTJOIN(products KTable) -> enriched-orders

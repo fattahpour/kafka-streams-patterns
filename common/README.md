@@ -2,6 +2,13 @@
 
 Shared classes and helpers used across the Kafka Streams pattern modules.
 
+## Problem
+Multiple stream-processing services share serialization and configuration logic, leading to
+duplicated boilerplate.
+
+## Solution
+This module centralizes those utilities so each example can focus solely on its pattern.
+
 ## Build and Install
 
 ```bash

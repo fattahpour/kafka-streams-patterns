@@ -2,6 +2,13 @@
 
 Shows the difference between `aggregate`, `reduce` and `count` when grouping records.
 
+## Problem
+A ride-sharing platform needs metrics per driver to determine incentives.
+
+## Solution
+It sums total fares, tracks the highest single trip, and counts rides per driver using
+`aggregate`, `reduce`, and `count`.
+
 Topology:
 ```
 input -> groupByKey -> aggregate(sum) -> sum-topic

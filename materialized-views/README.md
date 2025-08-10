@@ -2,6 +2,13 @@
 
 Expose a materialized key-value store via a simple REST endpoint for interactive queries.
 
+## Problem
+A preferences service must serve the latest settings per user to web clients.
+
+## Solution
+A materialized view backs a REST endpoint so clients can fetch a user's current
+configuration instantly.
+
 ## Topology
 
 ```
