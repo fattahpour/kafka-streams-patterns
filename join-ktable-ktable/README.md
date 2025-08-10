@@ -11,8 +11,13 @@ table-a ---\
 ## How to run
 
 ```bash
-docker compose up -d
-./join-ktable-ktable/run.sh
+mvn -pl join-ktable-ktable -am clean package
+java -jar join-ktable-ktable/target/join-ktable-ktable-1.0.0-SNAPSHOT.jar \
+  -Dbootstrap.servers=localhost:9092 \
+  -Dapplication.id=join-ktable-ktable \
+  -Dleft.table.topic=left-table \
+  -Dright.table.topic=right-table \
+  -Doutput.topic=joined-table
 ```
 
-Produce records on `table-a` and `table-b` and observe joined values on `joined`.
+Produce records on `left-table` and `right-table` and observe joined values on `joined-table`.

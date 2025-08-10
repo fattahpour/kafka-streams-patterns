@@ -9,8 +9,11 @@ input --> groupByKey --> window(5s, grace 5s).count.suppress --> output
 ## How to run
 
 ```bash
-docker compose up -d
-./late-early-data/run.sh
+mvn -pl late-early-data -am clean package
+java -jar late-early-data/target/late-early-data-1.0.0-SNAPSHOT.jar \
+  -Dinput.topic=late-early-input \
+  -Dearly.topic=late-early-early \
+  -Doutput.topic=late-early-output
 ```
 
 Produce records on `late-early-input` and observe early and final counts on `late-early-output`.
