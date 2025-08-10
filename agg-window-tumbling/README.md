@@ -2,6 +2,10 @@
 
 Count records per key in one-minute tumbling windows.
 
+## Scenario
+
+Generate discrete per-minute reports, like counting orders each minute for operational dashboards.
+
 ```
 input --> groupByKey --> window(1m).count --> output
 ```

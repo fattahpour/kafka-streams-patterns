@@ -2,6 +2,10 @@
 
 Emit early and final windowed counts while dropping records arriving after the grace period.
 
+## Scenario
+
+Provide quick preliminary results for analytics dashboards while still producing a final corrected count once the window closes.
+
 ```
 input --> groupByKey --> window(5s, grace 5s).count.suppress --> output
 ```

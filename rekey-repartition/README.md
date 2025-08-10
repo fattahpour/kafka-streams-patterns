@@ -2,6 +2,10 @@
 
 Demonstrates selecting a new record key and forcing a repartition.
 
+## Scenario
+
+Change partitioning to align with upcoming operations, for example rekeying by user ID before aggregating by user.
+
 Topology:
 ```
 input-rekey -> SELECTKEY(extract user) -> REPARTITION -> output-rekey

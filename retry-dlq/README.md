@@ -2,6 +2,10 @@
 
 Retry pattern using backoff topics and a dead-letter queue with attempt headers.
 
+## Scenario
+
+Handle transient failures when calling external services by retrying with exponential backoff before routing the event to a DLQ.
+
 ```
 input/retry-1/retry-2 -> [RetryProcessor] -> success
                                |\

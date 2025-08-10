@@ -2,6 +2,10 @@
 
 Enrich a stream with table lookups using a `KTable` left join.
 
+## Scenario
+
+Join events with partitioned reference data, like matching orders with customer records stored in a co-partitioned table.
+
 Topology:
 ```
 orders -> LEFTJOIN(products KTable) -> enriched-orders

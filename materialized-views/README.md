@@ -2,6 +2,10 @@
 
 Expose a materialized key-value store via a simple REST endpoint for interactive queries.
 
+## Scenario
+
+Serve up-to-date aggregation results to web clients, such as querying the current count for a given key.
+
 ## Topology
 
 ```

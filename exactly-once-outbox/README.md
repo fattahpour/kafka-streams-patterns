@@ -2,6 +2,10 @@
 
 Demonstrates using Kafka Streams with EOSv2 to atomically write to a processed topic and an outbox topic.
 
+## Scenario
+
+Generate events for external systems while guaranteeing once-only processing, for example emitting an order confirmation and a side-effect event.
+
 Topology:
 ```
 orders -> MAP(toUpperCase) -> [processed-orders, orders-outbox]

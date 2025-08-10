@@ -2,6 +2,10 @@
 
 Join two tables and emit the joined values.
 
+## Scenario
+
+Combine slowly changing datasets, like merging account records with customer preferences for downstream services.
+
 ```
 table-a ---\
            +--> join --> joined

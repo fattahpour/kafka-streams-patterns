@@ -2,6 +2,10 @@
 
 Join two streams within a five-minute window.
 
+## Scenario
+
+Combine related real-time feeds like orders and payments that arrive within minutes of each other.
+
 ```
 left-join ----\
               +--> join --> joined

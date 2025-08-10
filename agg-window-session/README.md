@@ -2,6 +2,10 @@
 
 Count records per key in sessions with a one-minute inactivity gap.
 
+## Scenario
+
+Capture user activity per session, such as grouping clicks until a minute of inactivity signals the session end.
+
 ```
 input --> groupByKey --> sessionWindow(1m).count --> output
 ```

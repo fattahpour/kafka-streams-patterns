@@ -2,6 +2,10 @@
 
 Shared classes and helpers used across the Kafka Streams pattern modules.
 
+## Scenario
+
+Provide reusable serializers and utilities for stream applications so each module can focus on its specific pattern.
+
 ## Build and Install
 
 ```bash

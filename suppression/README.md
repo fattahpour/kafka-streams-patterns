@@ -2,6 +2,10 @@
 
 Emit final windowed results only using `Suppressed.untilWindowCloses`.
 
+## Scenario
+
+Emit only complete aggregates, such as publishing end-of-day totals without intermediate updates.
+
 ## Topology
 
 ```

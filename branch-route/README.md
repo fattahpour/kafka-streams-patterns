@@ -2,6 +2,10 @@
 
 Branch an input stream into multiple topics using predicates.
 
+## Scenario
+
+Route transactions to specialized topics based on their attributes, for example separating credit and debit operations.
+
 ```
 input-branch ---> branch ---+--> even-branch
                             \

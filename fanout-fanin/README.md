@@ -2,6 +2,10 @@
 
 Demonstrates splitting a stream into branches and merging the results.
 
+## Scenario
+
+Apply different transformations to subsets of events, such as processing even and odd readings differently before merging results.
+
 Topology:
 ```
 fanout-input -> branch(even / odd)

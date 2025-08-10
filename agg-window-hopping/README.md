@@ -2,6 +2,10 @@
 
 Count records per key in one-minute windows advancing every 30 seconds.
 
+## Scenario
+
+Track rolling website hits to detect traffic spikes by counting requests in overlapping windows.
+
 ```
 input --> groupByKey --> window(1m,30s).count --> output
 ```

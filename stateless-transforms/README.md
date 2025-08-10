@@ -2,6 +2,10 @@
 
 Demonstrates map/filter/flatMap on a stream.
 
+## Scenario
+
+Perform lightweight cleansing and expansion of events, like uppercasing messages and splitting them into individual words.
+
 Topology:
 ```
 input -> MAP(toUpperCase) -> FILTER(!startsWith("IGNORE")) -> FLATMAP(split) -> output

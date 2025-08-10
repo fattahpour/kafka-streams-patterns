@@ -2,6 +2,10 @@
 
 Shows the difference between `aggregate`, `reduce` and `count` when grouping records.
 
+## Scenario
+
+Compare aggregation behaviors when summarizing metrics, such as tracking total sales, maximum order value, and count per product.
+
 Topology:
 ```
 input -> groupByKey -> aggregate(sum) -> sum-topic

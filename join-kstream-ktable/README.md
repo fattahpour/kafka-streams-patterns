@@ -2,6 +2,10 @@
 
 Join a stream with a table using an inner join.
 
+## Scenario
+
+Enrich a live event stream with the latest reference data, such as attaching user profile information to activity events.
+
 ```
 stream-join ---\
              +--> join --> joined

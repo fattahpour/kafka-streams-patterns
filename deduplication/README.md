@@ -2,6 +2,10 @@
 
 Deduplicate records by key within a ten-minute window using a state store to remember previously seen keys.
 
+## Scenario
+
+Ensure unique processing of events from systems that might resend data, like avoiding duplicate user signups within a short period.
+
 ## Topology
 
 ```

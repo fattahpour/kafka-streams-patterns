@@ -2,6 +2,10 @@
 
 Enrich a stream with table lookups using a `GlobalKTable` left join.
 
+## Scenario
+
+Replicate a small reference dataset to all instances, such as product details, to enrich incoming orders everywhere.
+
 Topology:
 ```
 orders -> LEFTJOIN(products GlobalKTable) -> enriched-orders
