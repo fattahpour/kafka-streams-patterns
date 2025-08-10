@@ -1,11 +1,14 @@
 package io.example.kstreamspatterns.enrichmentktable;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Materialized;
 
 public final class TopologyBuilder {
   private TopologyBuilder() {}
@@ -18,7 +21,10 @@ public final class TopologyBuilder {
     KStream<String, String> orderStream =
         builder.stream(orders, Consumed.with(Serdes.String(), Serdes.String()));
     KTable<String, String> productTable =
-        builder.table(products, Consumed.with(Serdes.String(), Serdes.String()));
+        builder.table(
+            products,
+            Consumed.with(Serdes.String(), Serdes.String()),
+            Materialized.<String, String, KeyValueStore<Bytes, byte[]>>as("product-store"));
     orderStream
         .leftJoin(
             productTable,
