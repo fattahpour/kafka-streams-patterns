@@ -35,6 +35,21 @@ mvn -pl <module> -am clean package
 java -jar <module>/target/*.jar
 ```
 
+### Generating sample data
+
+The `common` module provides a helper to seed topics with example records for any pattern
+module:
+
+```bash
+mvn -pl common -am package
+java -cp common/target/common-1.0.0-SNAPSHOT.jar \
+  com.fattahpour.kstreamspatterns.common.FakeDataGenerator [module ...]
+```
+
+Run the generator without arguments to seed every module, or pass one or more
+module names (for example, `branch-route` or `aggregate-reduce-count`) to seed
+only those modules' input topics with fake data.
+
 ## Version Matrix
 
 | Component | Version |
