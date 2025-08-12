@@ -22,7 +22,8 @@ public final class TopologyBuilder {
                 b.table(table, Consumed.with(Serdes.String(), Serdes.String()));
 
         KStream<String, String> orders =
-                b.stream(input, Consumed.with(Serdes.String(), Serdes.String()));
+                b.stream(input, Consumed.with(Serdes.String(), Serdes.String()))
+                 .selectKey((key, value) -> value);
 
         orders.leftJoin(products, (orderVal, productVal) ->
                         orderVal + ":" + (productVal == null ? "null" : productVal))

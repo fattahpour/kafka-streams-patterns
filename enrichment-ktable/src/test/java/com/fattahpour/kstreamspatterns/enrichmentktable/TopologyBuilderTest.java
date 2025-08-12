@@ -24,6 +24,8 @@ class TopologyBuilderTest {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "dummy-topology-test-driver-app-id");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
 
         try (TopologyTestDriver driver = new TopologyTestDriver(TopologyBuilder.build(), props)) {
             TestInputTopic<String,String> products =
