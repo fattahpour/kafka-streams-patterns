@@ -37,7 +37,7 @@ public class EnrichmentGlobalKTableIT extends KafkaIntegrationTest {
     prodProps.put("value.serializer", Serdes.String().serializer().getClass().getName());
     try (KafkaProducer<String, String> producer = new KafkaProducer<>(prodProps)) {
       producer.send(new ProducerRecord<>("products-gkt-it", "p1", "apple"));
-      producer.send(new ProducerRecord<>("orders-gkt-it", "p1", "5"));
+      producer.send(new ProducerRecord<>("orders-gkt-it", "o1", "p1"));
       producer.flush();
     }
 
@@ -58,7 +58,7 @@ public class EnrichmentGlobalKTableIT extends KafkaIntegrationTest {
               java.util.stream.StreamSupport
                   .stream(records.records("enriched-orders-gkt-it").spliterator(), false)
                   .map(ConsumerRecord::value))
-          .contains("apple:5");
+          .contains("apple:p1");
     }
 
     streams.close();
