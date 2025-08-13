@@ -15,15 +15,13 @@ public final class TopologyBuilder {
     String products = System.getProperty("products.topic", "products");
     String output = System.getProperty("output.topic", "enriched-orders");
     StreamsBuilder builder = new StreamsBuilder();
-    KStream<String, String> orderStream =
-        builder.stream(orders, Consumed.with(Serdes.String(), Serdes.String()));
-    GlobalKTable<String, String> productTable =
-        builder.globalTable(products, Consumed.with(Serdes.String(), Serdes.String()));
+    KStream<String, String> orderStream =builder.stream(orders, Consumed.with(Serdes.String(), Serdes.String()));
+    GlobalKTable<String, String> productTable = builder.globalTable(products, Consumed.with(Serdes.String(), Serdes.String()));
     orderStream
         .leftJoin(
             productTable,
-            (key, value) -> key,
-            (order, name) -> name == null ? "unknown:" + order : name + ":" + order)
+            (key, value) -> value,/* map order to lookup value in products */
+            (order, name) -> name == null ? "unknown:" + order : name + ":" + order)/* value joiner */
         .to(output, org.apache.kafka.streams.kstream.Produced.with(Serdes.String(), Serdes.String()));
     return builder.build();
   }

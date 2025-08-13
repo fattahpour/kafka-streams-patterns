@@ -8,8 +8,8 @@ public class App {
   public static void main(String[] args) {
     Properties props = new Properties();
     props.putAll(System.getProperties());
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, System.getProperty("application.id"));
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("bootstrap.servers"));
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, System.getProperty("application.id", "enrichment-global-ktable-app"));
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("bootstrap.servers", "localhost:9092"));
     KafkaStreams streams = new KafkaStreams(TopologyBuilder.build(), props);
     Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     streams.start();
