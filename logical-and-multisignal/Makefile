@@ -9,4 +9,4 @@ test:
 mvn -pl $(MODULE) -am test
 
 run: build
-mvn -pl $(MODULE) -am -DskipTests exec:java -Dexec.mainClass=io.zyvoxal.kstreamspatterns.logicalandmultisignal.LogicalAndMultisignalApp
+mvn -pl $(MODULE) -am -DskipTests exec:java -Dexec.mainClass=com.fattahpour.kstreamspatterns.logicalandmultisignal.LogicalAndMultisignalApp
