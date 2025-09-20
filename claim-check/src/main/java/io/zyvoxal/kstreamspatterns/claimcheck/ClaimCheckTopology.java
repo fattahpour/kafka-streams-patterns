@@ -14,9 +14,11 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Named;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.processor.api.ContextualProcessor;
-import org.apache.kafka.streams.processor.api.ProcessorContext;
-import org.apache.kafka.streams.processor.api.Record;
+import org.apache.kafka.streams.kstream.Transformer;
+import org.apache.kafka.streams.kstream.TransformerSupplier;
+import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
+import org.apache.kafka.streams.kstream.ValueTransformerWithKeySupplier;
+import org.apache.kafka.streams.processor.ProcessorContext;
 
 public final class ClaimCheckTopology {
   private static final String DEFAULT_INPUT = "pattern.claim-check.in";
@@ -62,7 +64,7 @@ public final class ClaimCheckTopology {
 
     KStream<String, ClaimCheckReference> references =
         valid.transform(
-            () -> new ClaimWriterProcessor(store, metrics),
+            new ClaimWriterTransformerSupplier(store, metrics),
             Named.as("claim-check-writer"));
 
     references
@@ -70,70 +72,94 @@ public final class ClaimCheckTopology {
         .to(referencesTopic, Produced.with(Serdes.String(), referenceSerde));
 
     KStream<String, ClaimCheckReference> referencesThrough =
-        references.through(
-            referencesTopic,
-            Produced.with(Serdes.String(), referenceSerde),
-            Consumed.with(Serdes.String(), referenceSerde));
+        builder.stream(referencesTopic, Consumed.with(Serdes.String(), referenceSerde));
 
     KStream<String, ResolvedDocument> resolved =
         referencesThrough.transformValues(
-            () -> new ClaimResolverProcessor(store, metrics), Named.as("claim-check-resolver"));
+            new ClaimResolverTransformerSupplier(store, metrics),
+            Named.as("claim-check-resolver"));
 
     resolved.to(output, Produced.with(Serdes.String(), resolvedSerde));
 
     return builder.build();
   }
 
-  static final class ClaimWriterProcessor
-      extends ContextualProcessor<String, InboundDocument, ClaimCheckReference> {
+  static final class ClaimWriterTransformerSupplier
+      implements TransformerSupplier<String, InboundDocument, KeyValue<String, ClaimCheckReference>> {
     private final ClaimCheckStore store;
     private final PatternMetrics metrics;
 
-    ClaimWriterProcessor(ClaimCheckStore store, PatternMetrics metrics) {
+    ClaimWriterTransformerSupplier(ClaimCheckStore store, PatternMetrics metrics) {
       this.store = store;
       this.metrics = metrics;
     }
 
     @Override
-    public void process(Record<String, InboundDocument> record) {
+    public Transformer<String, InboundDocument, KeyValue<String, ClaimCheckReference>> get() {
+      return new ClaimWriterTransformer(store, metrics);
+    }
+  }
+
+  static final class ClaimWriterTransformer
+      implements Transformer<String, InboundDocument, KeyValue<String, ClaimCheckReference>> {
+    private final ClaimCheckStore store;
+    private final PatternMetrics metrics;
+    private ProcessorContext context;
+
+    ClaimWriterTransformer(ClaimCheckStore store, PatternMetrics metrics) {
+      this.store = store;
+      this.metrics = metrics;
+    }
+
+    @Override
+    public void init(ProcessorContext context) {
+      this.context = context;
+    }
+
+    @Override
+    public KeyValue<String, ClaimCheckReference> transform(String key, InboundDocument value) {
       metrics.markProcessed();
-      InboundDocument value = record.value();
-      Headers headers = record.headers();
+      if (value == null) {
+        return null;
+      }
+      Headers headers = context.headers();
       headers.add("correlation-id", header(value.correlationId()));
       headers.add("causation-id", header(value.id()));
       URI uri = store.put(value.id(), value.payload().getBytes(StandardCharsets.UTF_8));
       ClaimCheckReference reference = new ClaimCheckReference(value.id(), uri, value.correlationId());
       headers.add("claim-check-uri", header(uri.toString()));
-      context().forward(record.withValue(reference));
+      return KeyValue.pair(key, reference);
     }
+
+    @Override
+    public void close() {}
 
     private byte[] header(String value) {
       return value == null ? new byte[0] : value.getBytes(StandardCharsets.UTF_8);
     }
   }
 
-  static final class ClaimResolverProcessor
-      implements org.apache.kafka.streams.kstream.ValueTransformerWithKeySupplier<String, ClaimCheckReference, ResolvedDocument> {
+  static final class ClaimResolverTransformerSupplier
+      implements ValueTransformerWithKeySupplier<String, ClaimCheckReference, ResolvedDocument> {
     private final ClaimCheckStore store;
     private final PatternMetrics metrics;
 
-    ClaimResolverProcessor(ClaimCheckStore store, PatternMetrics metrics) {
+    ClaimResolverTransformerSupplier(ClaimCheckStore store, PatternMetrics metrics) {
       this.store = store;
       this.metrics = metrics;
     }
 
     @Override
-    public org.apache.kafka.streams.kstream.ValueTransformerWithKey<String, ClaimCheckReference, ResolvedDocument>
-        get() {
+    public ValueTransformerWithKey<String, ClaimCheckReference, ResolvedDocument> get() {
       return new Resolver(store, metrics);
     }
   }
 
   static final class Resolver
-      implements org.apache.kafka.streams.kstream.ValueTransformerWithKey<String, ClaimCheckReference, ResolvedDocument> {
+      implements ValueTransformerWithKey<String, ClaimCheckReference, ResolvedDocument> {
     private final ClaimCheckStore store;
     private final PatternMetrics metrics;
-    private ProcessorContext<String, ResolvedDocument> context;
+    private ProcessorContext context;
 
     Resolver(ClaimCheckStore store, PatternMetrics metrics) {
       this.store = store;
@@ -141,12 +167,15 @@ public final class ClaimCheckTopology {
     }
 
     @Override
-    public void init(ProcessorContext<String, ResolvedDocument> context) {
+    public void init(ProcessorContext context) {
       this.context = context;
     }
 
     @Override
     public ResolvedDocument transform(String readOnlyKey, ClaimCheckReference value) {
+      if (value == null) {
+        return null;
+      }
       Optional<byte[]> payloadBytes = store.get(value.uri());
       if (payloadBytes.isPresent()) {
         context.headers().add("claim-check-hit", "true".getBytes(StandardCharsets.UTF_8));
