@@ -4,29 +4,33 @@ A collection of small Kafka Streams applications demonstrating common stream pro
 
 ## Modules
 
-- [common](common) – shared utilities
-- [stateless-transforms](stateless-transforms) – basic map/filter/flatMap pattern
-- [branch-route](branch-route) – branch to multiple topics by predicate
-- [rekey-repartition](rekey-repartition) – selectKey with explicit repartitioning
-- [enrichment-ktable](enrichment-ktable) – enrich stream via KTable lookup
-- [enrichment-globalktable](enrichment-globalktable) – enrich stream via GlobalKTable lookup
-- [join-kstream-kstream](join-kstream-kstream) – windowed KStream–KStream join
-- [join-kstream-ktable](join-kstream-ktable) – KStream–KTable join
-- [join-ktable-ktable](join-ktable-ktable) – KTable–KTable join
-- [agg-window-tumbling](agg-window-tumbling) – tumbling window aggregation
-- [agg-window-hopping](agg-window-hopping) – hopping window aggregation
-- [agg-window-session](agg-window-session) – session window aggregation
-- [aggregate-reduce-count](aggregate-reduce-count) – aggregate vs reduce vs count
-- [deduplication](deduplication) – deduplicate records by key within a window
- - [suppression](suppression) – emit results only when windows close
- - [materialized-views](materialized-views) – query materialized state via REST
- - [exactly-once-outbox](exactly-once-outbox) – transactional outbox with EOSv2
- - [retry-dlq](retry-dlq) – retry with backoff topics and dead-letter queue
- - [late-early-data](late-early-data) – event-time with grace, early results, and late data handling
-- [fanout-fanin](fanout-fanin) – split and merge branches (fan-out/fan-in)
-
-Additional modules for other patterns are planned.
-
+| Pattern | Module | Status |
+|---------|--------|--------|
+| Common utilities | [common](common) | Ready |
+| Stateless transforms | [stateless-transforms](stateless-transforms) | Ready |
+| Branch and route | [branch-route](branch-route) | Ready |
+| Rekey/Repartition | [rekey-repartition](rekey-repartition) | Ready |
+| KTable enrichment | [enrichment-ktable](enrichment-ktable) | Ready |
+| GlobalKTable enrichment | [enrichment-globalktable](enrichment-globalktable) | Ready |
+| KStream-KStream join | [join-kstream-kstream](join-kstream-kstream) | Ready |
+| KStream-KTable join | [join-kstream-ktable](join-kstream-ktable) | Ready |
+| KTable-KTable join | [join-ktable-ktable](join-ktable-ktable) | Ready |
+| Tumbling window aggregation | [agg-window-tumbling](agg-window-tumbling) | Ready |
+| Hopping window aggregation | [agg-window-hopping](agg-window-hopping) | Ready |
+| Session window aggregation | [agg-window-session](agg-window-session) | Ready |
+| Aggregate/Reduce/Count | [aggregate-reduce-count](aggregate-reduce-count) | Ready |
+| Deduplication | [deduplication](deduplication) | Ready |
+| Suppression | [suppression](suppression) | Ready |
+| Materialized views | [materialized-views](materialized-views) | Ready |
+| Exactly-once outbox | [exactly-once-outbox](exactly-once-outbox) | Ready |
+| Retry + DLQ | [retry-dlq](retry-dlq) | Ready |
+| Late vs early data | [late-early-data](late-early-data) | Ready |
+| Fan-out / Fan-in | [fanout-fanin](fanout-fanin) | Ready |
+| Claim check | [claim-check](claim-check) | Ready |
+| Event chunking | [event-chunking](event-chunking) | Ready |
+| Event gateway connect | [event-gateway-connect](event-gateway-connect) | Ready |
+| Idempotent writer/reader | [idempotent-writer-reader](idempotent-writer-reader) | Ready |
+| Logical AND multisignal | [logical-and-multisignal](logical-and-multisignal) | Ready |
 ## Local Development
 
 ```bash

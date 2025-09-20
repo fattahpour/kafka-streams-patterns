@@ -1,0 +1,3 @@
+{"correlationKey":"order-1","signalType":"A","payload":"{\"status\":\"created\"}","correlationId":"corr-1"}
+{"correlationKey":"order-1","signalType":"B","payload":"{\"status\":\"paid\"}","correlationId":"corr-1"}
+{"correlationKey":"order-1","signalType":"C","payload":"{\"status\":\"packed\"}","correlationId":"corr-1"}
