@@ -72,7 +72,12 @@ class ClaimCheckTopologyTest {
   @Test
   void missingPayloadFallsBack() {
     ClaimCheckStore store =
-        new InMemoryClaimCheckStore() {
+        new ClaimCheckStore() {
+          @Override
+          public URI put(String id, byte[] payload) {
+            return URI.create("memory://missing/" + id);
+          }
+
           @Override
           public Optional<byte[]> get(URI uri) {
             return Optional.empty();
