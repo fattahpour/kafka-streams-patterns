@@ -37,6 +37,10 @@
     <module>event-collaboration</module>
     <module>cqrs-projections</module>
     <module>saga-orchestration</module>
+    <module>geo-replication-notes</module>
+    <module>pipeline-strangler</module>
+    <module>content-filter</module>
+    <module>projection-table-ttl</module>
   </modules>
 
   <properties>
@@ -150,4 +154,13 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ci</id>
+      <properties>
+        <maven.test.failure.ignore>false</maven.test.failure.ignore>
+      </properties>
+    </profile>
+  </profiles>
 </project>

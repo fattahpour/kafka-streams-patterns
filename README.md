@@ -4,33 +4,42 @@ A collection of small Kafka Streams applications demonstrating common stream pro
 
 ## Modules
 
-| Pattern | Module | Status |
-|---------|--------|--------|
-| Common utilities | [common](common) | Ready |
-| Stateless transforms | [stateless-transforms](stateless-transforms) | Ready |
-| Branch and route | [branch-route](branch-route) | Ready |
-| Rekey/Repartition | [rekey-repartition](rekey-repartition) | Ready |
-| KTable enrichment | [enrichment-ktable](enrichment-ktable) | Ready |
-| GlobalKTable enrichment | [enrichment-globalktable](enrichment-globalktable) | Ready |
-| KStream-KStream join | [join-kstream-kstream](join-kstream-kstream) | Ready |
-| KStream-KTable join | [join-kstream-ktable](join-kstream-ktable) | Ready |
-| KTable-KTable join | [join-ktable-ktable](join-ktable-ktable) | Ready |
-| Tumbling window aggregation | [agg-window-tumbling](agg-window-tumbling) | Ready |
-| Hopping window aggregation | [agg-window-hopping](agg-window-hopping) | Ready |
-| Session window aggregation | [agg-window-session](agg-window-session) | Ready |
-| Aggregate/Reduce/Count | [aggregate-reduce-count](aggregate-reduce-count) | Ready |
-| Deduplication | [deduplication](deduplication) | Ready |
-| Suppression | [suppression](suppression) | Ready |
-| Materialized views | [materialized-views](materialized-views) | Ready |
-| Exactly-once outbox | [exactly-once-outbox](exactly-once-outbox) | Ready |
-| Retry + DLQ | [retry-dlq](retry-dlq) | Ready |
-| Late vs early data | [late-early-data](late-early-data) | Ready |
-| Fan-out / Fan-in | [fanout-fanin](fanout-fanin) | Ready |
-| Claim check | [claim-check](claim-check) | Ready |
-| Event chunking | [event-chunking](event-chunking) | Ready |
-| Event gateway connect | [event-gateway-connect](event-gateway-connect) | Ready |
-| Idempotent writer/reader | [idempotent-writer-reader](idempotent-writer-reader) | Ready |
-| Logical AND multisignal | [logical-and-multisignal](logical-and-multisignal) | Ready |
+| Module | Description |
+|--------|-------------|
+| [common](common) | Shared SerDes, header utilities, and test helpers used by every pattern. |
+| [stateless-transforms](stateless-transforms) | Demonstrates simple map/filter/branch processing. |
+| [branch-route](branch-route) | Branch events into multiple topics based on predicates. |
+| [rekey-repartition](rekey-repartition) | Change record keys and trigger repartitioning safely. |
+| [enrichment-ktable](enrichment-ktable) | Enrich a stream from a co-partitioned KTable lookup. |
+| [enrichment-globalktable](enrichment-globalktable) | Enrich using a GlobalKTable for fan-out reads. |
+| [join-kstream-kstream](join-kstream-kstream) | Join two streams with windowed semantics. |
+| [join-kstream-ktable](join-kstream-ktable) | Join a stream to a table for latest-state lookups. |
+| [join-ktable-ktable](join-ktable-ktable) | Illustrates table-table joins for merged state. |
+| [agg-window-tumbling](agg-window-tumbling) | Tumbling window aggregation example. |
+| [agg-window-hopping](agg-window-hopping) | Hopping window aggregation example. |
+| [agg-window-session](agg-window-session) | Session window aggregation example. |
+| [aggregate-reduce-count](aggregate-reduce-count) | Compare `aggregate`, `reduce`, and `count`. |
+| [deduplication](deduplication) | Idempotent stream deduplication with state store. |
+| [suppression](suppression) | Suppress intermediate results until windows close. |
+| [materialized-views](materialized-views) | Build read models backed by interactive queries. |
+| [exactly-once-outbox](exactly-once-outbox) | Exactly-once pattern bridging transactional outbox. |
+| [retry-dlq](retry-dlq) | Retry with exponential backoff and dead letter queue. |
+| [late-early-data](late-early-data) | Route early vs. late arrivals based on timestamps. |
+| [fanout-fanin](fanout-fanin) | Broadcast results and re-aggregate fan-in responses. |
+| [claim-check](claim-check) | Offload large payloads via the claim-check pattern. |
+| [event-chunking](event-chunking) | Chunk large events and reassemble on the consumer side. |
+| [event-gateway-connect](event-gateway-connect) | Gateway processor that annotates headers for Kafka Connect sinks. |
+| [idempotent-writer-reader](idempotent-writer-reader) | Demonstrates idempotent producers and readers using shared state. |
+| [logical-and-multisignal](logical-and-multisignal) | Correlate multiple heterogeneous signals before emission. |
+| [wallclock-timers](wallclock-timers) | Fire timers at wall-clock intervals using punctuators. |
+| [event-splitter](event-splitter) | Decompose composite events into lineage-tracked child events. |
+| [event-collaboration](event-collaboration) | Collaborate heterogeneous streams with lateness tolerance. |
+| [cqrs-projections](cqrs-projections) | Apply CQRS commands and emit projection snapshots. |
+| [saga-orchestration](saga-orchestration) | Orchestrate an order saga with compensating actions. |
+| [geo-replication-notes](geo-replication-notes) | Documentation and configs for multi-region replication with MirrorMaker 2. |
+| [pipeline-strangler](pipeline-strangler) | Feature-flag router that diverts traffic between legacy and modern topics. |
+| [content-filter](content-filter) | Early-drop filter that rejects banned or oversized payloads. |
+| [projection-table-ttl](projection-table-ttl) | Versioned materialized view with TTL-based eviction. |
 ## Local Development
 
 ```bash
