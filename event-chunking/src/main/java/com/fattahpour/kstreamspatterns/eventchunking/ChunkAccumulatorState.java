@@ -1,10 +1,13 @@
 package com.fattahpour.kstreamspatterns.eventchunking;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public final class ChunkAccumulatorState {
   private String id;
   private int totalChunks;
@@ -56,6 +59,7 @@ public final class ChunkAccumulatorState {
     return fragments.containsKey(sequence);
   }
 
+  @JsonIgnore
   public boolean isComplete() {
     return fragments.size() == totalChunks;
   }

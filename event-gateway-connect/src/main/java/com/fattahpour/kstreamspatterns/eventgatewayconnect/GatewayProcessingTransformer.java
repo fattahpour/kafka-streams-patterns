@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKeySupplier;
-import org.apache.kafka.streams.processor.api.ProcessorContext;
+import org.apache.kafka.streams.processor.ProcessorContext;
 
 final class GatewayProcessingTransformer
     implements ValueTransformerWithKeySupplier<String, GatewayEnvelope, GatewayProcessingResult> {
@@ -17,10 +17,10 @@ final class GatewayProcessingTransformer
   @Override
   public ValueTransformerWithKey<String, GatewayEnvelope, GatewayProcessingResult> get() {
     return new ValueTransformerWithKey<>() {
-      private ProcessorContext<String, GatewayProcessingResult> context;
+      private ProcessorContext context;
 
       @Override
-      public void init(ProcessorContext<String, GatewayProcessingResult> context) {
+      public void init(ProcessorContext context) {
         this.context = context;
       }
 
@@ -48,9 +48,8 @@ final class GatewayProcessingTransformer
       }
 
       private void removeHeader(String name) {
-        Header header = context.headers().lastHeader(name);
-        if (header != null) {
-          context.headers().remove(name, header.value());
+        if (context.headers().lastHeader(name) != null) {
+          context.headers().remove(name);
         }
       }
 

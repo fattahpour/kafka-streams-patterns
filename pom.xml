@@ -32,6 +32,11 @@
     <module>event-gateway-connect</module>
     <module>idempotent-writer-reader</module>
     <module>logical-and-multisignal</module>
+    <module>wallclock-timers</module>
+    <module>event-splitter</module>
+    <module>event-collaboration</module>
+    <module>cqrs-projections</module>
+    <module>saga-orchestration</module>
   </modules>
 
   <properties>

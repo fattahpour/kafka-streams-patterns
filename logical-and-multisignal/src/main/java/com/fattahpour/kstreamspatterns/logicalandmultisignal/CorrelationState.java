@@ -1,5 +1,6 @@
 package com.fattahpour.kstreamspatterns.logicalandmultisignal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public final class CorrelationState {
     this.updatedAt = timestamp;
   }
 
+  @JsonIgnore
   public boolean isComplete() {
     for (SignalType type : SignalType.values()) {
       if (!receivedTypes.contains(type.name())) {

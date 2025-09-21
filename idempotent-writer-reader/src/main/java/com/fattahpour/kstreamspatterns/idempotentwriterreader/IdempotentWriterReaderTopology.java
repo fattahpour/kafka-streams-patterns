@@ -1,6 +1,7 @@
 package com.fattahpour.kstreamspatterns.idempotentwriterreader;
 
 import com.fattahpour.kstreamspatterns.common.JsonSerdes;
+import java.util.Collections;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -35,12 +36,16 @@ public final class IdempotentWriterReaderTopology {
         Stores.keyValueStoreBuilder(
             Stores.persistentKeyValueStore(WriterDeduplicationTransformer.STORE_NAME),
             Serdes.String(),
-            Serdes.Long()));
+            Serdes.Long())
+            .withCachingDisabled()
+            .withLoggingEnabled(Collections.emptyMap()));
     builder.addStateStore(
         Stores.keyValueStoreBuilder(
             Stores.persistentKeyValueStore(ReaderDeduplicationTransformer.STORE_NAME),
             Serdes.String(),
-            Serdes.Long()));
+            Serdes.Long())
+            .withCachingDisabled()
+            .withLoggingEnabled(Collections.emptyMap()));
 
     KStream<String, InboundEvent> source =
         builder.stream(input, Consumed.with(Serdes.String(), inboundSerde));
