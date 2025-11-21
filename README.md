@@ -67,7 +67,7 @@ only those modules' input topics with fake data.
 
 | Component | Version |
 |-----------|---------|
-| Java      | 25 |
+| Java      | 17 |
 | Maven     | 3.9+ |
 | Kafka Streams | 3.7.0 |
 
