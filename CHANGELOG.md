@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased] - 2025-11-21
+
+### Fixed
+- Downgraded Java version from 25 to 17 to ensure compatibility with GitHub Actions.
+- Resolved Docker Compose port conflict by moving Kafka external port to 9093.
+- Fixed `ksqldb-server` image version (downgraded to 0.29.0).
+- Added `LogAndContinueExceptionHandler` to `enrichment-ktable` to prevent stream thread death on deserialization errors.
+
+### Documentation
+- Added standard GitHub community files:
+    - Code of Conduct (`.github/CODE_OF_CONDUCT.md`)
+    - Contributing Guide (`.github/CONTRIBUTING.md`)
+    - Issue Templates (`.github/ISSUE_TEMPLATE/`)
+    - Pull Request Template (`.github/PULL_REQUEST_TEMPLATE.md`)
+    - Security Policy (`.github/SECURITY.md`)
+- Updated `README.md` with correct Java version and new Docker port instructions.
+
 ## Added
 
 - Wall-clock timers pattern for cron-like scheduling with punctuators.
