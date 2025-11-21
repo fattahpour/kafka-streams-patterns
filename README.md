@@ -55,6 +55,7 @@ module:
 
 ```bash
 mvn -pl common -am package
+export KAFKA_BOOTSTRAP=localhost:9093
 java -cp common/target/common-1.0.0-SNAPSHOT.jar \
   com.fattahpour.kstreamspatterns.common.FakeDataGenerator [module ...]
 ```
